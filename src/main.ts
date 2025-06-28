@@ -16,7 +16,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes),
     importProvidersFrom(FormsModule),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()), // ✅ Esto es lo que habilita `Auth`
+    provideAuth(() => getAuth()),
     provideStorage(() => getStorage())
   ]
 });

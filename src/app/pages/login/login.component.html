@@ -1,13 +1,44 @@
-<div class="login-container">
-  <h2>Iniciar Sesión</h2>
-  <button (click)="loginGoogle()">Login con Google</button>
+<div class="login-wrapper">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Bienvenido</mat-card-title>
+      <mat-card-subtitle>Ingresa con tu correo o nombre de usuario</mat-card-subtitle>
+    </mat-card-header>
 
-  <form (submit)="loginEmail()">
-    <input type="email" [(ngModel)]="email" name="email" placeholder="Correo" required />
-    <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required />
-    <button type="submit">Login con Email</button>
-  </form>
+    <mat-card-content>
+      <!-- Botón Login con Google -->
+      <button mat-stroked-button color="primary" class="full-width" (click)="loginGoogle()">
+        Ingresar con Google
+      </button>
 
-  <button (click)="registrar()">Crear cuenta</button>
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+        <!-- Campo: Email o Username -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email o nombre de usuario</mat-label>
+          <input matInput formControlName="identifier" required>
+          <mat-error *ngIf="loginForm.get('identifier')?.hasError('required')">
+            Este campo es obligatorio
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Campo: Contraseña -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" required>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            La contraseña es requerida
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Botón Login -->
+        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loginForm.invalid || loading">
+          <mat-spinner *ngIf="loading" [diameter]="20"></mat-spinner>
+          <span *ngIf="!loading">Ingresar</span>
+        </button>
+      </form>
+
+      <!-- Botón Crear cuenta -->
+      <button mat-button color="accent" class="full-width" (click)="registrar()">Crear cuenta</button>
+    </mat-card-content>
+  </mat-card>
 </div>
-
