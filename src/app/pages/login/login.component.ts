@@ -22,7 +22,7 @@ import { AuthService } from '../../core/services/auth.service';
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
