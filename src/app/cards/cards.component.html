@@ -1,0 +1,11 @@
+<div class="cards-container">
+  <div *ngFor="let scholarship of scholarships" class="card" [attr.data-aos]="'fade-up'">
+    <h3 class="card-title">{{ scholarship.title }} </h3>
+    <p>{{scholarship.pais}}</p>
+    <div class="card-data">
+      <div *ngFor="let item of scholarship.data" class="data-cylinder">
+        {{ item }}
+      </div>
+    </div>
+  </div>
+</div>
