@@ -1,73 +1,175 @@
+/* ---------- CONTENEDOR PRINCIPAL ---------- */
 .login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #e0eafc, #cfdef3);
-  padding: 1rem;
+  min-height: 100vh;
+  padding: 0 2rem;
+  background-color: #f7f9fc; // gris muy claro para dar luz y neutralidad
 }
 
+/* ---------- CARD DE LOGIN ---------- */
 mat-card {
   width: 100%;
   max-width: 400px;
   padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 1.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   background-color: #ffffff;
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  }
 }
 
-mat-card-header {
-  text-align: center;
-  margin-bottom: 1rem;
+/* ---------- TITULOS ---------- */
+mat-card-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 0.2rem;
+}
 
-  mat-card-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #333;
+mat-card-subtitle {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* ---------- CAMPOS INPUT SIN BORDES VISIBLES ---------- */
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1.25rem;
+
+  // Oculta el borde del contenedor outline
+  ::ng-deep .mat-form-field-outline,
+  ::ng-deep .mat-form-field-outline-start,
+  ::ng-deep .mat-form-field-outline-end {
+    display: none !important;
   }
 
-  mat-card-subtitle {
+  // Estilo limpio con solo línea inferior
+  ::ng-deep .mat-form-field-flex {
+    border-bottom: 1px solid #ccc;
+    padding: 0.5rem 0;
+    transition: border-color 0.3s ease;
+    border-radius: 0;
+  }
+
+  // Hover con línea más intensa
+  ::ng-deep .mat-form-field-flex:hover {
+    border-bottom-color: #3f51b5;
+  }
+
+  // Focus más marcado
+  ::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-flex {
+    border-bottom-color: #3f51b5;
+  }
+
+  // Input sin bordes ni fondo
+  ::ng-deep input.mat-input-element {
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
     font-size: 1rem;
+    padding: 0.25rem 0;
+    color: #222;
+  }
+
+
+
+  // Label y errores
+  ::ng-deep .mat-form-field-label {
     color: #666;
   }
+
+  ::ng-deep .mat-form-field-label.mat-focused {
+    color: #3f51b5;
+  }
+
+  ::ng-deep .mat-error {
+    color: #d32f2f;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
 }
 
-mat-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
 
-mat-form-field.full-width {
-  width: 100%;
-}
-
+/* ---------- BOTONES ---------- */
 button.full-width {
   width: 100%;
+  height: 44px;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-transform: none;
+  transition: all 0.3s ease;
   margin-top: 0.5rem;
 }
 
-button[mat-button] {
-  font-weight: 500;
+/* Botón Google */
+button[mat-stroked-button] {
+  border-color: #3f51b5;
+  color: #3f51b5;
+
+  &:hover {
+    background-color: white;
+    border-color: #3f51b5;
+    color: #3f51b5;
+  }
 }
 
+/* Botón principal (Ingresar) */
+button[mat-raised-button] {
+  background-color: #3f51b5;
+  color: white;
+
+  &:hover {
+    color: #3f51b5;
+    background-color: white;
+    border: 1px solid #3f51b5;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+button[mat-stroked-button] {
+  background-color: #3f51b5;
+  color: white;
+
+  &:hover {
+    color: #3f51b5;
+    background-color: white;
+    border: 1px solid #3f51b5;
+  }
+}
+
+/* Botón Crear Cuenta */
+button[mat-button] {
+  color: #3f51b5;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+    background-color: #3f51b5;
+    color: white;
+  }
+}
+
+/* Spinner dentro del botón */
 mat-spinner {
   margin-right: 0.5rem;
+  vertical-align: middle;
 }
 
-a {
-  font-size: 0.9rem;
-  color: #1976d2;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
 
-a:hover {
-  color: #004ba0;
-}
-
-.links {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
+mat-error {
+  font-size: small;
+  color: rgb(172, 0, 0);
 }

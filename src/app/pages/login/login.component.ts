@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../core/services/auth.service';
+import AOS from 'aos';
 
 @Component({
   selector: 'app-login',
@@ -42,6 +43,19 @@ export class LoginComponent {
       password: ['', Validators.required]
     });
   }
+
+  ngOnInit(): void {
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true
+  });
+
+  setTimeout(() => {
+    AOS.refresh();
+  }, 100);
+}
+
 
   onLogin(): void {
     if (this.loginForm.valid) {
