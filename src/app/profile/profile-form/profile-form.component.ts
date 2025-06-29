@@ -16,6 +16,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import {ProfileService} from '../../core/services/profile.service';
 import {UserProfile} from '../../shared/models/user.model';
 import {Subscription} from 'rxjs';
+import { HeaderComponent } from "../../components/header/header.component";
 
 
 @Component({
@@ -32,8 +33,9 @@ import {Subscription} from 'rxjs';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatDividerModule
-  ],
+    MatDividerModule,
+    HeaderComponent
+],
   templateUrl: './profile-form.component.html',
   styleUrls: ['./profile-form.component.scss']
 })

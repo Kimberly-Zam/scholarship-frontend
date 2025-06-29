@@ -1,0 +1,77 @@
+.header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  background-color: #2244aa; // Azul al inicio
+  color: white;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: all 0.3s ease;
+
+  
+  .logo {
+      height: 40px;
+      cursor: pointer;
+    }
+    
+    .right {
+        display: flex;
+        gap: 1rem;
+        
+        button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 450;
+            color: inherit;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: background 0.2s ease, color 0.3s ease;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+    }
+    
+    &.scrolled {
+        background-color: rgba(255, 255, 255, 0.5); // Fondo translúcido
+        color: black;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        
+        .right button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+    }
+
+
+  // Responsive
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+
+    .right {
+      width: 100%;
+      justify-content: space-around;
+      margin-top: 0.5rem;
+    }
+
+    .logo {
+      height: 36px;
+    }
+  }
+}
