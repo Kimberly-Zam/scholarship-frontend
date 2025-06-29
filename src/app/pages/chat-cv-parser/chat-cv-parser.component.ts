@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NgClass, NgForOf } from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 
 interface UserProfile {
   fullName?: string | null;
@@ -15,188 +15,176 @@ interface UserProfile {
 
 @Component({
   selector: 'app-chat-cv-parser',
-  templateUrl: './chat-cv-parser.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass, NgForOf],
-  styleUrls: ['./chat-cv-parser.component.scss']
+  templateUrl: './chat-cv-parser.component.html',
+  styleUrls: ['./chat-cv-parser.component.scss'],
+  imports: [ReactiveFormsModule, NgIf, NgClass, NgForOf],
 })
 export class ChatCvParserComponent {
   message = new FormControl('');
-  chatHistory: { from: 'user' | 'ai', text: string }[] = [];
+  chatHistory: { role: 'user' | 'assistant', content: string }[] = [];
   profile: UserProfile = {};
-  currentField: keyof UserProfile | null = null;
-  hasAskedFirstQuestion = false;
 
-  fieldsOrder: (keyof UserProfile)[] = [
-    'fullName', 'email', 'phone', 'education',
-    'experience', 'languages', 'interests', 'desiredCountry'
-  ];
-
-  showProfileCommands = ['perfil completo', 'mostrar perfil', 'ver perfil', 'perfil en json', 'perfil json'];
+  constructor() {
+    this.chatHistory.push({
+      role: 'assistant',
+      content:
+        `👋 Hola. Puedes pegar tu CV como texto o subir un PDF.\n` +
+        `Estoy recopilando:\n` +
+        `- Nombre completo\n- Correo\n- Teléfono\n- Educación\n- Experiencia\n- Idiomas\n- Intereses\n- País deseado\n\n` +
+        `Una vez que tenga toda la información, podrás buscar becas.`,
+    });
+  }
 
   async sendMessage(): Promise<void> {
-    const userTextRaw = this.message.value?.trim() ?? '';
-    if (!userTextRaw) return;
+    const userText = this.message.value?.trim();
+    if (!userText) return;
 
-    const userTextLower = userTextRaw.toLowerCase();
-
-    this.chatHistory.push({ from: 'user', text: userTextRaw });
+    this.chatHistory.push({ role: 'user', content: userText });
     this.message.setValue('');
 
-    if (this.showProfileCommands.some(cmd => userTextLower.includes(cmd))) {
-      if (userTextLower.includes('json')) {
-        this.chatHistory.push({
-          from: 'ai',
-          text: `Aquí tienes tu perfil en JSON:\n${JSON.stringify(this.profile, null, 2)}`
-        });
-      } else {
-        this.chatHistory.push({
-          from: 'ai',
-          text: `Este es tu perfil actual:\n${this.getFormattedProfile()}`
-        });
-      }
-      return;
-    }
+    const response = await this.queryOpenAI(this.chatHistory);
+    const aiReply = response?.reply;
+    const profileUpdate = response?.profile;
 
-    if (!this.hasAskedFirstQuestion) {
-      const extracted = await this.simulateAiExtraction(userTextRaw);
-      this.mergeProfile(extracted);
-      this.hasAskedFirstQuestion = true;
-    } else if (this.currentField) {
-      if (this.isNegativeResponse(userTextLower)) {
-        this.profile[this.currentField] = null;
-      } else {
-        const normalized = this.normalizeInput(this.currentField, userTextRaw);
-        this.profile[this.currentField] = normalized;
-      }
-      this.currentField = null;
-    } else {
-      const extracted = await this.simulateAiExtraction(userTextRaw);
-      this.mergeProfile(extracted);
-    }
+    if (aiReply) this.chatHistory.push({ role: 'assistant', content: aiReply });
+    if (profileUpdate) this.mergeProfile(profileUpdate);
+  }
 
-    const next = this.nextMissingField();
-    if (next) {
-      this.currentField = next;
-      this.chatHistory.push({
-        from: 'ai',
-        text: this.questionForField(next)
+  async handlePdfUpload(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file || file.type !== 'application/pdf') return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.chatHistory.push({
+      role: 'assistant',
+      content: '📄 Procesando tu CV en PDF...',
+    });
+
+    try {
+      const res = await fetch('/api/parse-pdf', {
+        method: 'POST',
+        body: formData,
       });
-    } else {
+
+      const extracted: Partial<UserProfile> = await res.json();
+      this.mergeProfile(extracted);
+
       this.chatHistory.push({
-        from: 'ai',
-        text: '¡Genial! Tu perfil está completo. ¿Quieres ver un resumen o buscar becas?'
+        role: 'assistant',
+        content: '✅ He leído tu CV. Te preguntaré algunos datos que faltan en tu perfil.',
+      });
+
+      // Preguntar el siguiente campo faltante
+      const next = this.nextFieldPrompt();
+      if (next) this.chatHistory.push({ role: 'assistant', content: next });
+
+    } catch (e) {
+      this.chatHistory.push({
+        role: 'assistant',
+        content: '❌ Hubo un error al procesar el PDF.',
       });
     }
   }
 
-  isNegativeResponse(text: string): boolean {
-    const negatives = ['no', 'ninguna', 'sin', 'ninguno', 'no tengo', 'no poseo', 'nada', 'no aplica'];
-    return negatives.some(n => text.includes(n));
+  async queryOpenAI(messages: { role: 'user' | 'assistant', content: string }[]): Promise<{
+    reply: string,
+    profile?: Partial<UserProfile>
+  }> {
+    const OPENAI_API_KEY = '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'; // tu clave
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content:
+              `Eres un asistente que ayuda a completar este perfil:\n` +
+              `fullName, email, phone, education, experience, languages, interests, desiredCountry.\n` +
+              `Haz preguntas concisas para lo que falte. Si detectas datos nuevos, devuelve al final un bloque JSON bajo "profile".\n` +
+              `Sé directo, breve y profesional.`,
+          },
+          ...messages,
+        ],
+        temperature: 0.5,
+      }),
+    });
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content ?? '';
+    let extractedProfile: Partial<UserProfile> | undefined;
+
+    try {
+      const match = content.match(/```json\n([\s\S]*?)\n```/);
+      if (match) extractedProfile = JSON.parse(match[1]);
+    } catch {}
+
+    return { reply: content.replace(/```json[\s\S]*?```/, '').trim(), profile: extractedProfile };
   }
 
-  normalizeInput(field: keyof UserProfile, input: string): any {
-    if (!input) return null;
-    switch (field) {
-      case 'languages':
-        return input.split(',').map(s => s.trim()).filter(Boolean);
-      case 'phone':
-        const digits = input.replace(/\D/g, '');
-        return digits.length >= 7 ? digits : null;
-      default:
-        return input.trim();
+  mergeProfile(update: Partial<UserProfile>) {
+    for (const key of Object.keys(update) as (keyof UserProfile)[]) {
+      const newVal = update[key];
+      if (
+        newVal !== undefined &&
+        (this.profile[key] === undefined || this.profile[key] === null || this.profile[key]?.length === 0)
+      ) {
+        // @ts-ignore
+        this.profile[key] = newVal;
+      }
     }
   }
 
-  nextMissingField(): keyof UserProfile | null {
-    for (const f of this.fieldsOrder) {
-      if (!(f in this.profile)) return f;
-      if (this.profile[f] === null || this.profile[f] === undefined) return f;
+  isProfileComplete(): boolean {
+    return [
+      'fullName', 'email', 'phone', 'education',
+      'experience', 'languages', 'interests', 'desiredCountry'
+    ].every(field => {
+      // @ts-ignore
+      const val = this.profile[field];
+      return val !== undefined && val !== null && (!Array.isArray(val) || val.length > 0);
+    });
+  }
+
+  nextFieldPrompt(): string | null {
+    const fields: (keyof UserProfile)[] = [
+      'fullName', 'email', 'phone', 'education',
+      'experience', 'languages', 'interests', 'desiredCountry'
+    ];
+    for (const f of fields) {
+      if (!this.profile[f]) {
+        return `¿Podrías decirme tu ${this.fieldLabel(f)}?`;
+      }
     }
     return null;
   }
 
-  questionForField(field: keyof UserProfile): string {
-    const questions: Record<keyof UserProfile, string> = {
-      fullName: '¿Cuál es tu nombre completo?',
-      email: '¿Cuál es tu correo electrónico?',
-      phone: '¿Cuál es tu número de teléfono?',
-      education: '¿Cuál es tu nivel o área de educación?',
-      experience: '¿Tienes experiencia laboral? Si no, puedes decir "ninguna".',
-      languages: '¿Qué idiomas hablas y qué nivel tienes? Por favor sepáralos por comas.',
-      interests: '¿Qué áreas de estudio o trabajo te interesan?',
-      desiredCountry: '¿A qué país te gustaría aplicar para una beca?'
-    };
-    return questions[field];
+  fieldLabel(f: keyof UserProfile): string {
+    return {
+      fullName: 'nombre completo',
+      email: 'correo electrónico',
+      phone: 'número de teléfono',
+      education: 'nivel de educación',
+      experience: 'experiencia laboral',
+      languages: 'idiomas',
+      interests: 'intereses',
+      desiredCountry: 'país de destino'
+    }[f];
   }
 
-  getFormattedProfile(): string {
-    if (Object.keys(this.profile).length === 0) return 'No has completado ningún dato todavía.';
-    return this.fieldsOrder.map(field => {
-      const value = this.profile[field];
-      if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) {
-        return `${this.fieldLabel(field)}: No especificado`;
-      }
-      if (Array.isArray(value)) {
-        return `${this.fieldLabel(field)}: ${value.join(', ')}`;
-      }
-      return `${this.fieldLabel(field)}: ${value}`;
-    }).join('\n');
-  }
-
-  fieldLabel(field: keyof UserProfile): string {
-    const labels: Record<keyof UserProfile, string> = {
-      fullName: 'Nombre completo',
-      email: 'Correo electrónico',
-      phone: 'Número de teléfono',
-      education: 'Educación',
-      experience: 'Experiencia laboral',
-      languages: 'Idiomas',
-      interests: 'Intereses',
-      desiredCountry: 'País deseado'
-    };
-    return labels[field];
-  }
-
-  async simulateAiExtraction(text: string): Promise<Partial<UserProfile>> {
-    const lower = text.toLowerCase();
-    const profile: Partial<UserProfile> = {};
-
-    const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
-    if (emailMatch) profile.email = emailMatch[0];
-
-    const nombreMatch = lower.match(/mi nombre es ([a-záéíóúüñ\s]+)/);
-    if (nombreMatch) profile.fullName = nombreMatch[1].trim();
-
-    if (lower.includes('ingeniería')) profile.education = 'Ingeniería';
-    else if (lower.includes('licenciatura')) profile.education = 'Licenciatura';
-    else if (lower.includes('maestría')) profile.education = 'Maestría';
-
-    if (lower.includes('sin experiencia') || lower.includes('ninguna experiencia')) profile.experience = null;
-    else if (lower.includes('experiencia')) profile.experience = 'Tiene experiencia';
-
-    const langMatch = lower.match(/hablo ([a-záéíóúüñ,\s]+)/);
-    if (langMatch) {
-      profile.languages = langMatch[1].split(',').map(l => l.trim());
-    }
-
-    if (lower.includes('inteligencia artificial')) profile.interests = 'Inteligencia Artificial';
-
-    if (lower.includes('alemania')) profile.desiredCountry = 'Alemania';
-    else if (lower.includes('estados unidos')) profile.desiredCountry = 'Estados Unidos';
-
-    return profile;
-  }
-
-  mergeProfile(extracted: Partial<UserProfile>) {
-    for (const key of Object.keys(extracted) as (keyof UserProfile)[]) {
-      if (
-        (this.profile[key] === undefined || this.profile[key] === null || this.profile[key]?.length === 0)
-        && extracted[key] !== undefined
-      ) {
-        // @ts-ignore
-        this.profile[key] = extracted[key];
-      }
-    }
+  buscarBecas() {
+    this.chatHistory.push({
+      role: 'assistant',
+      content: '🔎 Genial. Ahora buscaré las becas ideales para tu perfil... (en desarrollo)',
+    });
   }
 }

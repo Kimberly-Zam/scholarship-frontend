@@ -1,11 +1,33 @@
 <div class="chat-container">
   <div class="chat-messages">
-    <div *ngFor="let msg of chatHistory" [ngClass]="msg.from">
-      <div class="chat-bubble">{{ msg.text }}</div>
+    <div
+      *ngFor="let msg of chatHistory"
+      class="bubble"
+      [ngClass]="{ user: msg.role === 'user', assistant: msg.role === 'assistant' }"
+    >
+      {{ msg.content }}
     </div>
   </div>
-  <div class="chat-input">
-    <textarea [formControl]="message" rows="1" placeholder="Escribe algo..." (keydown.enter)="sendMessage(); $event.preventDefault();" cdkAutosize></textarea>
-    <button (click)="sendMessage()" [disabled]="!message.value?.trim()">Send</button>
+
+  <form
+    *ngIf="!isProfileComplete()"
+    (submit)="sendMessage(); $event.preventDefault()"
+    class="chat-input"
+  >
+    <input
+      type="text"
+      [formControl]="message"
+      placeholder="Escribe tu mensaje..."
+      autocomplete="off"
+    />
+    <button type="submit">Enviar</button>
+    <label class="upload-button">
+      📎
+      <input type="file" accept="application/pdf" (change)="handlePdfUpload($event)"/>
+    </label>
+  </form>
+
+  <div *ngIf="isProfileComplete()" class="final-action">
+    <button (click)="buscarBecas()">🎯 Buscar becas</button>
   </div>
 </div>
