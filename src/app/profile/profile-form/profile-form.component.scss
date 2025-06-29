@@ -1,0 +1,108 @@
+.profile-form-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 64px);
+  width: 100%;
+
+  mat-card {
+    width: 100%;
+    max-width: 700px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  mat-card-title {
+    margin-bottom: 25px;
+    color: #3f51b5;
+    text-align: center;
+  }
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .language-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #fdfdfd;
+
+    h3 {
+      margin-top: 0;
+      color: #555;
+    }
+
+    .language-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .lang-input, .level-input {
+        flex: 1;
+      }
+
+      button {
+        flex-shrink: 0;
+      }
+    }
+    button[mat-raised-button] {
+      margin-top: 10px;
+    }
+  }
+
+  .cv-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+
+    input[type="file"] {
+      padding: 10px 0;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      a {
+        color: #3f51b5;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  button[type="submit"], button[mat-raised-button].accent {
+    margin-top: 25px;
+    width: 100%;
+    height: 48px;
+    font-size: 1.1em;
+  }
+
+  mat-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .profile-form-container {
+    padding: 10px;
+  }
+  mat-card {
+    padding: 15px;
+  }
+  .language-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

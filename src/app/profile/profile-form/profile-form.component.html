@@ -1,0 +1,91 @@
+<div class="profile-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Editar Perfil Educativo/Profesional</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name">
+          <mat-error *ngIf="profileForm.get('name')?.hasError('required') && profileForm.get('name')?.touched">
+            El nombre es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput formControlName="email">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Edad</mat-label>
+          <input matInput type="number" formControlName="age">
+          <mat-error *ngIf="profileForm.get('age')?.hasError('min') || profileForm.get('age')?.hasError('max')">
+            La edad debe estar entre 1 y 99
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nivel de Educación</mat-label>
+          <mat-select formControlName="education">
+            <mat-option *ngFor="let level of educationLevels" [value]="level">{{level}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div formArrayName="languages" class="language-section">
+          <h3>Idiomas</h3>
+          <div *ngFor="let lang of languages.controls; let i = index" [formGroupName]="i" class="language-group">
+            <mat-form-field appearance="fill" class="lang-input">
+              <mat-label>Idioma</mat-label>
+              <input matInput formControlName="language">
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="level-input">
+              <mat-label>Nivel</mat-label>
+              <mat-select formControlName="level">
+                <mat-option *ngFor="let level of languageLevels" [value]="level">{{level}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-icon-button color="warn" (click)="removeLanguage(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          <button mat-raised-button color="accent" (click)="addLanguage()">
+            <mat-icon>add</mat-icon> Añadir Idioma
+          </button>
+        </div>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Experiencia Profesional</mat-label>
+          <textarea matInput formControlName="experience" rows="4"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>País de Interés</mat-label>
+          <mat-select formControlName="countryOfInterest">
+            <mat-option *ngFor="let country of countries" [value]="country">{{country}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
+          <mat-spinner *ngIf="loading" [diameter]="20"></mat-spinner>
+          <span *ngIf="!loading">Guardar Perfil</span>
+        </button>
+      </form>
+
+      <mat-divider style="margin: 30px 0;"></mat-divider>
+
+      <h3>Subir CV (PDF)</h3>
+      <div class="cv-upload-section">
+        <input type="file" (change)="onFileSelected($event)" accept=".pdf">
+        <button mat-raised-button color="accent" (click)="onUploadCV()" [disabled]="!cvFile || loading">
+          <mat-spinner *ngIf="loading" [diameter]="20"></mat-spinner>
+          <span *ngIf="!loading">Subir CV</span>
+        </button>
+        <p *ngIf="currentProfile?.cvUrl">
+          CV actual: <a [href]="currentProfile?.cvUrl" target="_blank">{{ currentProfile?.cvUrl?.split('/')?.pop() }}</a>
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
