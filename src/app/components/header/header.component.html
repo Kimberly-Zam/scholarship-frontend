@@ -1,0 +1,10 @@
+<header [class.scrolled]="isScrolled" class="header">
+  <div class="left">
+    <img src="../../assets/logo.png" alt="Logo" class="logo" (click)="goTo('/chat')" />
+  </div>
+
+  <nav class="right">
+    <button (click)="goTo('/becas')">Listas</button>
+    <button (click)="goTo('/profile')">Perfil</button>
+  </nav>
+</header>
