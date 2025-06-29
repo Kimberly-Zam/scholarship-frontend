@@ -1,44 +1,41 @@
-<div class="login-wrapper">
-  <mat-card>
-    <mat-card-header>
+<div class="login-wrapper" data-aos="fade-up">
+  <mat-card data-aos="zoom-in">
+    <mat-card-header data-aos="fade-down">
       <mat-card-title>Bienvenido</mat-card-title>
       <mat-card-subtitle>Ingresa con tu correo o nombre de usuario</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
-      <!-- Botón Login con Google -->
-      <button mat-stroked-button color="primary" class="full-width" (click)="loginGoogle()">
-        Ingresar con Google
-      </button>
-
+    <mat-card-content data-aos="fade-up">
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
-        <!-- Campo: Email o Username -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email o nombre de usuario</mat-label>
+        <mat-label>Email</mat-label>
+        <mat-form-field appearance="fill" class="full-width" data-aos="fade-right">
           <input matInput formControlName="identifier" required>
           <mat-error *ngIf="loginForm.get('identifier')?.hasError('required')">
             Este campo es obligatorio
           </mat-error>
         </mat-form-field>
 
-        <!-- Campo: Contraseña -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Contraseña</mat-label>
+        <mat-label>Contraseña</mat-label>
+        <mat-form-field appearance="fill" class="full-width" data-aos="fade-left">
           <input matInput formControlName="password" type="password" required>
           <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
             La contraseña es requerida
           </mat-error>
         </mat-form-field>
 
-        <!-- Botón Login -->
-        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loginForm.invalid || loading">
+        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loginForm.invalid || loading" data-aos="zoom-in">
           <mat-spinner *ngIf="loading" [diameter]="20"></mat-spinner>
           <span *ngIf="!loading">Ingresar</span>
         </button>
       </form>
 
-      <!-- Botón Crear cuenta -->
-      <button mat-button color="accent" class="full-width" (click)="registrar()">Crear cuenta</button>
+      <button mat-stroked-button color="primary" class="full-width" (click)="loginGoogle()" data-aos="fade-up">
+        Ingresar con Google
+      </button>
+
+      <button mat-button color="accent" class="full-width" (click)="registrar()" data-aos="fade-up" data-aos-delay="200">
+        Crear cuenta
+      </button>
     </mat-card-content>
   </mat-card>
 </div>
