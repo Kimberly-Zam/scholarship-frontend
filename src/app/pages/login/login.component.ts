@@ -23,7 +23,7 @@ import AOS from 'aos';
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']

@@ -1,0 +1,11 @@
+<div class="chat-container">
+  <div class="chat-messages">
+    <div *ngFor="let msg of chatHistory" [ngClass]="msg.from">
+      <div class="chat-bubble">{{ msg.text }}</div>
+    </div>
+  </div>
+  <div class="chat-input">
+    <textarea [formControl]="message" rows="1" placeholder="Escribe algo..." (keydown.enter)="sendMessage(); $event.preventDefault();" cdkAutosize></textarea>
+    <button (click)="sendMessage()" [disabled]="!message.value?.trim()">Send</button>
+  </div>
+</div>
