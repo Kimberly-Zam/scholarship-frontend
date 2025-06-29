@@ -46,7 +46,7 @@ export class LoginComponent {
 
   ngOnInit(): void {
   AOS.init({
-    duration: 800,
+    duration: 1000,
     easing: 'ease-in-out',
     once: true
   });
@@ -65,7 +65,7 @@ export class LoginComponent {
       this.auth.loginWithEmail(identifier, password)
         .then(() => {
           this.loading = false;
-          this.router.navigate(['/scholarships']);
+          this.router.navigate(['/chat']);
         })
         .catch(err => {
           this.loading = false;
@@ -80,7 +80,7 @@ export class LoginComponent {
     this.auth.loginWithGoogle()
       .then(() => {
         this.loading = false;
-        this.router.navigate(['/scholarships']);
+        this.router.navigate(['/chat']);
       })
       .catch(err => {
         this.loading = false;
@@ -100,7 +100,7 @@ export class LoginComponent {
     this.auth.registerWithEmail(identifier, password)
       .then(() => {
         this.snackBar.open('Cuenta creada con éxito.', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/scholarships']);
+        this.router.navigate(['/chat']);
       })
       .catch(err => {
         console.error('Error de registro:', err);
